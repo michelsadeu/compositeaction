@@ -34,13 +34,13 @@ runs:
           echo "Erreur : Certaines cases de la checklist ne sont pas cochées."
           exit 1 
         fi
+        echo "pr-body<<EOF" >> $GITHUB_OUTPUT
+        echo "$PR_BODY" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
       shell: bash   
     - name: Valider la description de la PR
-      env:
-        GITHUB_EVENT_PATH: ${{ github.event_path }}
       run: |
-        PR_BODY=$(jq -r '.pull_request.body' "$GITHUB_EVENT_PATH")
-        if [[ "$PR_BODY" == *"Empty"* ]]; then
+        if [[ "${{ steps.validate.outputs.pr-body }}" == *"Empty"* ]]; then
           echo "The text 'Empty' exists in the PR body."
           
         else
