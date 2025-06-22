@@ -11,4 +11,4 @@ jobs:
       - id: foo
         uses: ./
         with:
-          INPUT_VARIABLE: 'All automated tests pass'
+          INPUT_VARIABLE: 'mandatory'

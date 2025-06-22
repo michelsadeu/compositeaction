@@ -1,7 +1,7 @@
 # Pull Request Checklist
 
 - [ ] I have tested my code locally
-- [ ] All automated tests pass
+- [ ] **mandatory**: All automated tests pass
 - [ ] Documentation is updated (if applicable)
 - [ ] This PR adheres to the coding standards
 
