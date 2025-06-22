@@ -28,7 +28,7 @@ runs:
         PR_BODY=$(jq -r '.pull_request.body' "$GITHUB_EVENT_PATH")
         
         echo $PR_BODY
-        if echo "$PR_BODY" | grep -q '\- \[x\] \*\*${{ inputs.INPUT_VARIABLE }}\*\*: All automated tests pass\.'; then
+        if echo "$PR_BODY" | grep -q '\- \[x\] \*\*${{ inputs.INPUT_VARIABLE }}\*\*: All automated tests pass.'; then
           echo "✅ All required checkboxes are checked!" 
         else
           echo "Erreur : Certaines cases de la checklist ne sont pas cochées."
