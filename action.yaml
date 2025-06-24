@@ -41,7 +41,7 @@ runs:
       shell: bash 
 
     - name: Valider les cases cochées dans la description de la PR
-      id: validate
+      id: valid
       env: 
         GITHUB_EVENT_PATH: ${{ github.event_path }}
         
