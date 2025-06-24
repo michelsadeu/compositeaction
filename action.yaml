@@ -51,7 +51,7 @@ runs:
 
         while IFS= read -r line; do
           # Vérifie les cases non cochées du type '- [ ]' ou '[ ]'
-          if echo "$line" | grep -Eq '^[[:space:]]*[-]?[[:space:]]*\[x\]'; then
+          if echo "$line" | grep -Eiq '^[[:space:]]*[-]?[[:space:]]*\[xX\]'; then
             echo "Case  cochée trouvée : $line"
             UNCHECKED=1
           elif echo "$line" | grep -Eq '^[[:space:]]*[-]?[[:space:]]*\[ \]'; then
