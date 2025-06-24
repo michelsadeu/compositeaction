@@ -53,7 +53,7 @@ runs:
           # Vérifie les cases non cochées du type '- [ ]' ou '[ ]'
           if echo "$line" | grep -Eiq '^[[:space:]]*[-]?[[:space:]]*\[xX\]'; then
             echo "Case  cochée trouvée : $line"
-            UNCHECKED=1
+            
           elif echo "$line" | grep -Eq '^[[:space:]]*[-]?[[:space:]]*\[ \]'; then
             echo "Case  non cochée trouvée : $line"
             UNCHECKED=1
