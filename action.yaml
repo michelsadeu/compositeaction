@@ -55,7 +55,7 @@ runs:
           if echo "$line" | grep -E '\[x\] \*\*${{ inputs.INPUT_VARIABLE }}\*\*: All automated tests pass\.'; then
             echo "Case  cochée trouvée : $line"
             
-          elif echo "$line" | grep -Eq '^[[:space:]]*[-]?[[:space:]]*\[ \]'; then
+          else 
             echo "Case  non cochée trouvée : $line"
             UNCHECKED=1
           fi
