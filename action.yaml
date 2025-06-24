@@ -46,8 +46,7 @@ runs:
         GITHUB_EVENT_PATH: ${{ github.event_path }}
         
       run: |
-        #!/bin/bash
-
+      
         TEMPLATE_PATH=".github/PULL_REQUEST_TEMPLATE.md"
         UNCHECKED=0
 
