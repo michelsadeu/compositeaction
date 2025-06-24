@@ -58,9 +58,12 @@ runs:
             echo "Case non cochée trouvée : $line"
             UNCHECKED=1
           fi
-        done <<< "$PR_BODY"      
+        done <<< "$PR_BODY"  
+        if [ $UNCHECKED -eq 0 ]; then
+          echo "Toutes les cases sont cochées."
+        fi    
       shell: bash  
-      
+
     - name: Valider la description de la PR
       run: |
         if [[ "${{ steps.validate.outputs.pr-body }}" == *"Empty"* ]]; then
