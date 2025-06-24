@@ -46,7 +46,7 @@ runs:
         GITHUB_EVENT_PATH: ${{ github.event_path }}
         
       run: |
-        TEMPLATE_PATH=".github/PULL_REQUEST_TEMPLATE.md"
+        PR_BODY=$(jq -r '.pull_request.body' "$GITHUB_EVENT_PATH")
         UNCHECKED=0
 
         while IFS= read -r line; do
@@ -58,10 +58,9 @@ runs:
             echo "Case non cochée trouvée : $line"
             UNCHECKED=1
           fi
-        done < "$TEMPLATE_PATH"
-
-        
+        done <<< "$PR_BODY"      
       shell: bash  
+      
     - name: Valider la description de la PR
       run: |
         if [[ "${{ steps.validate.outputs.pr-body }}" == *"Empty"* ]]; then
