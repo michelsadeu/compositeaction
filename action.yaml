@@ -51,12 +51,14 @@ runs:
 
         while IFS= read -r line; do
           # Case cochée : - [x] ou - [X]
-          if echo "$line" | grep -Eiq '[[:space:]]*-\s*\[[xX]\]'; then
-            echo "Case cochée trouvée : $line"
-          # Case non cochée : - [ ]
-          elif echo "$line" | grep -Eq '[[:space:]]*-\s*\[ \]'; then
-            echo "Case non cochée trouvée : $line"
-            UNCHECKED=1
+          if echo "$line" | grep -Eiq '\*\*mandatory\*\*'; then
+            if echo "$line" | grep -Eiq '[[:space:]]*-\s*\[[xX]\]'; then
+              echo "Case cochée trouvée : $line"
+            # Case non cochée : - [ ]
+            elif echo "$line" | grep -Eq '[[:space:]]*-\s*\[ \]'; then
+              echo "Case non cochée trouvée : $line"
+              UNCHECKED=1
+            fi
           fi
         done <<< "$PR_BODY"  
         if [ $UNCHECKED -eq 0 ]; then
