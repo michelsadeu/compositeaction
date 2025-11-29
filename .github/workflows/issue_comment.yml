@@ -1,0 +1,63 @@
+name: CI Comment Parser
+
+on:
+  issue_comment:
+    types: [created, edited]
+
+permissions:
+  contents: read
+  issues: read
+
+jobs:
+  parse_ci_comment:
+    # Ne s'exécute que si le commentaire commence par /ci
+    if: startsWith(github.event.comment.body, '/ci')
+    runs-on: ubuntu-latest
+    name: Parse /ci command from issue comment
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Parse /ci parameters
+        id: parse
+        uses: ./ci-action
+      
+      - name: Display parsed parameters
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "📊 CI Command Parameters Parsed"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "🎯 Target:   ${{ steps.parse.outputs.target }}"
+          echo "📦 Version:  ${{ steps.parse.outputs.version }}"
+          echo "📈 Coverage: ${{ steps.parse.outputs.coverage }}"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+          echo "📋 All parameters:"
+          echo "${{ steps.parse.outputs.parameters }}"
+      
+      - name: Post success comment
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '✅ CI command parsed successfully!\n\n```json\n${{ steps.parse.outputs.parameters }}\n```'
+            });
+      
+      - name: Post failure comment
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '❌ Failed to parse CI command. Please check the format: `/ci target:xxx; version:yyy; coverage:zzz`'
+            });

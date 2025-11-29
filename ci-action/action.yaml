@@ -1,0 +1,92 @@
+name: 'Parse /ci Comment'
+description: 'Parse and extract parameters from /ci comments'
+author: 'Michel-SG'
+
+outputs:
+  target:
+    description: 'Target parameter'
+    value: ${{ steps.parse-ci.outputs.TARGET }}
+  version:
+    description: 'Version parameter'
+    value: ${{ steps.parse-ci.outputs.VERSION }}
+  coverage:
+    description: 'Coverage parameter'
+    value: ${{ steps.parse-ci.outputs.COVERAGE }}
+  parameters:
+    description: 'All parameters as JSON'
+    value: ${{ steps.parse-ci.outputs.parameters }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Parse /ci comment
+      id: parse-ci
+      uses: actions/github-script@v7
+      with:
+        script: |
+          try {
+            const commentBody = context.payload.comment?.body || '';
+            
+            core.info(`📝 Commentaire reçu: ${commentBody}`);
+            
+            // Vérifier si le commentaire commence par /ci
+            if (!commentBody.startsWith('/ci')) {
+              throw new Error('Le commentaire ne commence pas par /ci');
+            }
+            
+            core.info('✅ Commande /ci détectée');
+            
+            // Extraire la partie après "/ci "
+            const paramsString = commentBody.substring(4).trim();
+            
+            if (!paramsString) {
+              throw new Error('Aucun paramètre trouvé après /ci');
+            }
+            
+            core.info(`📦 Paramètres bruts: ${paramsString}`);
+            
+            // Parser les paramètres
+            const paramArray = paramsString
+              .split(';')
+              .map(p => p.trim())
+              .filter(p => p);
+            
+            const params = {};
+            let paramCount = 0;
+            
+            for (const param of paramArray) {
+              const colonIndex = param.indexOf(':');
+              
+              if (colonIndex === -1) {
+                core.warning(`⚠️ Format invalide pour le paramètre: ${param}`);
+                continue;
+              }
+              
+              const cleanKey = param.substring(0, colonIndex).trim().toLowerCase();
+              const cleanValue = param.substring(colonIndex + 1).trim();
+              
+              if (!cleanKey || !cleanValue) {
+                core.warning(`⚠️ Paramètre incomplet: clé="${cleanKey}", valeur="${cleanValue}"`);
+                continue;
+              }
+              
+              core.info(`✓ Paramètre trouvé: ${cleanKey} = ${cleanValue}`);
+              
+              params[cleanKey] = cleanValue;
+              core.setOutput(cleanKey.toUpperCase(), cleanValue);
+              paramCount++;
+            }
+            
+            if (paramCount === 0) {
+              throw new Error('Aucun paramètre valide trouvé');
+            }
+            
+            core.info(`✅ ${paramCount} paramètre(s) extrait(s) avec succès`);
+            core.info(`📊 Résumé: ${JSON.stringify(params)}`);
+            
+            // Exporter tous les paramètres en JSON
+            core.setOutput('parameters', JSON.stringify(params));
+            
+          } catch (error) {
+            core.setFailed(`❌ Erreur: ${error.message}`);
+          }
