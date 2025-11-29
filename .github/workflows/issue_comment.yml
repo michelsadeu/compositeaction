@@ -16,10 +16,11 @@ concurrency:
 
 jobs:
   parse_ci_comment:
-    # Ne s'exécute QUE sur les PR (pas les issues)
+    # Ne s'exécute QUE sur les PR (pas les issues) et pas sur main
     if: |
       github.event.issue.pull_request != null &&
-      startsWith(github.event.comment.body, '/ci')
+      startsWith(github.event.comment.body, '/ci') &&
+      github.ref != 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: GH_APP_TOKEN
     name: Parse /ci command from pull request comment
