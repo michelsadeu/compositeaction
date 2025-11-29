@@ -10,10 +10,17 @@ permissions:
   pull-requests: write
   statuses: write
 
+concurrency:
+  group: ci-comment-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
 jobs:
   parse_ci_comment:
-    # Ne s'exécute que si le commentaire commence par /ci
-    if: startsWith(github.event.comment.body, '/ci')
+    # Ne s'exécute que si le commentaire commence par /ci et si on est dans une PR
+    if: |
+      github.event.action == 'created' &&
+      startsWith(github.event.comment.body, '/ci') &&
+      github.event.issue.pull_request != null
     runs-on: ubuntu-latest
     environment: GH_APP_TOKEN
     name: Parse /ci command from issue comment
@@ -47,7 +54,7 @@ jobs:
           echo "📈 Coverage: ${{ steps.parse.outputs.coverage }}"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo ""
-          echo "📋 All actions check parameters:"
+          echo "📋 All actions checking parameters:"
           echo "${{ steps.parse.outputs.parameters }}"
       
       - name: Post success comment
