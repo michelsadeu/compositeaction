@@ -21,6 +21,12 @@ outputs:
   parameters:
     description: 'All parameters as JSON'
     value: ${{ steps.parse-ci.outputs.parameters }}
+  workflow_call_triggered:
+    description: 'Whether workflow_call was triggered successfully'
+    value: ${{ steps.trigger-workflow-call.outputs.workflow_call_triggered }}
+  workflow_dispatch_triggered:
+    description: 'Whether workflow_dispatch was triggered successfully'
+    value: ${{ steps.trigger-workflow-dispatch.outputs.workflow_dispatch_triggered }}
 
 runs:
   using: "composite"
@@ -96,4 +102,60 @@ runs:
             
           } catch (error) {
             core.setFailed(`❌ Erreur: ${error.message}`);
+          }
+    
+    - name: Trigger jenkinstest workflow_call
+      id: trigger-workflow-call
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          try {
+            core.info('📤 Déclenchement du workflow_call sur michelsadeu/jenkinstest');
+            
+            const dispatchResponse = await github.rest.actions.createWorkflowDispatch({
+              owner: 'michelsadeu',
+              repo: 'jenkinstest',
+              workflow_id: 'workflow_call.yml',
+              ref: 'main',
+              inputs: {
+                pr_number: '${{ github.event.issue.number }}',
+                message: 'CI workflow completed successfully - triggered by /ci comment'
+              }
+            });
+            
+            core.info('✅ workflow_call déclenché avec succès');
+            core.setOutput('workflow_call_triggered', 'true');
+            
+          } catch (error) {
+            core.warning(`⚠️ Erreur lors du déclenchement du workflow_call: ${error.message}`);
+            core.setOutput('workflow_call_triggered', 'false');
+          }
+    
+    - name: Trigger jenkinstest workflow_dispatch
+      id: trigger-workflow-dispatch
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          try {
+            core.info('📤 Déclenchement du workflow_dispatch sur michelsadeu/jenkinstest');
+            
+            const dispatchResponse = await github.rest.actions.createWorkflowDispatch({
+              owner: 'michelsadeu',
+              repo: 'jenkinstest',
+              workflow_id: 'workflow_dispatch.yml',
+              ref: 'main',
+              inputs: {
+                pr_number: '${{ github.event.issue.number }}',
+                message: 'CI workflow completed successfully - triggered by /ci comment'
+              }
+            });
+            
+            core.info('✅ workflow_dispatch déclenché avec succès');
+            core.setOutput('workflow_dispatch_triggered', 'true');
+            
+          } catch (error) {
+            core.warning(`⚠️ Erreur lors du déclenchement du workflow_dispatch: ${error.message}`);
+            core.setOutput('workflow_dispatch_triggered', 'false');
           }
