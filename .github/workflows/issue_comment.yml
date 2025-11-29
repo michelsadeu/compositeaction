@@ -19,8 +19,11 @@ jobs:
     # Ne s'exécute que si le commentaire commence par /ci et si on est dans une PR
     if: |
       github.event.action == 'created' &&
+      github.event.comment &&
+      github.event.comment.body != '' &&
       startsWith(github.event.comment.body, '/ci') &&
-      github.event.issue.pull_request != null
+      github.event.issue.pull_request != null &&
+      !contains(github.event, 'timeline_item')
     runs-on: ubuntu-latest
     environment: GH_APP_TOKEN
     name: Parse /ci command from issue comment
