@@ -7,6 +7,8 @@ on:
 permissions:
   contents: read
   issues: write
+  pull-requests: write
+  statuses: write
 
 jobs:
   parse_ci_comment:
