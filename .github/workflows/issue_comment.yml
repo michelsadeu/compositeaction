@@ -20,8 +20,16 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        
+      
+      - name: Checkout Pull Request
+        if: github.event.issue.pull_request != null
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_API_TOKEN }}
+        run: |
+          PR_NUMBER=${{ github.event.issue.number }}
+          echo "Checking out PR #$PR_NUMBER"
+          gh pr checkout $PR_NUMBER
       
       - name: Parse /ci parameters
         id: parse
