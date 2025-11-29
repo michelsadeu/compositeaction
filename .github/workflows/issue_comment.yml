@@ -2,7 +2,7 @@ name: CI Comment Parser
 
 on:
   issue_comment:
-    types: [created, edited]
+    types: [created]
 
 permissions:
   contents: read
@@ -44,7 +44,7 @@ jobs:
         with:
           github-token: ${{ secrets.GH_API_TOKEN }}
       
-      - name: Display parsed parameters
+      - name: Display parsed parameters CI
         run: |
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo "📊 CI Command Parameters Parsed"
