@@ -28,33 +28,29 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
-      - name: Checkout Pull Request
-        if: github.event.issue.pull_request != null
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_API_TOKEN }}
-        run: |
-          PR_NUMBER=${{ github.event.issue.number }}
-          echo "Checking out PR #$PR_NUMBER"
-          gh pr checkout $PR_NUMBER
+        with:
+         ref: ${{ github.event.issue.pull_request.head.ref }}
       
       - name: Parse /ci parameters
         id: parse
         uses: ./ci-action
         with:
           github-token: ${{ secrets.GH_API_TOKEN }}
+
+      - name: Show current branch
+        run: git branch --show-current
       
-      - name: Display parsed parameters CI
+      - name: Display parsed parameters
         run: |
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "📊 CI Command Parameters Parsed"
+          echo "📊 CI CI Command Parameters Parsed"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo "🎯 Target:   ${{ steps.parse.outputs.target }}"
           echo "📦 Version:  ${{ steps.parse.outputs.version }}"
           echo "📈 Coverage: ${{ steps.parse.outputs.coverage }}"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo ""
-          echo "📋 All actions checking parameters:"
+          echo "📋 All actions check parameters:"
           echo "${{ steps.parse.outputs.parameters }}"
       
       - name: Post success comment
