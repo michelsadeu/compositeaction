@@ -47,7 +47,7 @@ jobs:
           echo "📈 Coverage: ${{ steps.parse.outputs.coverage }}"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo ""
-          echo "📋 All action parameters:"
+          echo "📋 All actions check parameters:"
           echo "${{ steps.parse.outputs.parameters }}"
       
       - name: Post success comment
