@@ -107,6 +107,7 @@ runs:
     - name: Trigger jenkinstest workflow_call
       id: trigger-workflow-call
       uses: actions/github-script@v7
+      continue-on-error: true
       with:
         github-token: ${{ inputs.github-token }}
         script: |
@@ -128,13 +129,15 @@ runs:
             core.setOutput('workflow_call_triggered', 'true');
             
           } catch (error) {
-            core.warning(`⚠️ Erreur lors du déclenchement du workflow_call: ${error.message}`);
+            core.warning(`⚠️ Erreur workflow_call: ${error.message}`);
+            core.warning(`Status: ${error.status}`);
             core.setOutput('workflow_call_triggered', 'false');
           }
     
     - name: Trigger jenkinstest workflow_dispatch
       id: trigger-workflow-dispatch
       uses: actions/github-script@v7
+      continue-on-error: true
       with:
         github-token: ${{ inputs.github-token }}
         script: |
@@ -156,6 +159,7 @@ runs:
             core.setOutput('workflow_dispatch_triggered', 'true');
             
           } catch (error) {
-            core.warning(`⚠️ Erreur lors du déclenchement du workflow_dispatch: ${error.message}`);
+            core.warning(`⚠️ Erreur workflow_dispatch: ${error.message}`);
+            core.warning(`Status: ${error.status}`);
             core.setOutput('workflow_dispatch_triggered', 'false');
           }
