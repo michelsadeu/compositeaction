@@ -198,10 +198,3 @@ runs:
       with:
         pr_number: ${{ github.event.issue.number }}
         message: "CI triggered with parameters: target=${{ steps.parse-ci.outputs.TARGET }}, version=${{ steps.parse-ci.outputs.VERSION }}, coverage=${{ steps.parse-ci.outputs.COVERAGE }}"
-
-    - name: Trigger workflow with parsed parameters (workflow_call)
-      id: trigger-action-call
-      uses: michelsadeu/jenkinstest/.github/workflows/run_ci.yml@main
-      with:
-        pr_number: ${{ github.event.issue.number }}
-        message: "CI triggered with parameters: target=${{ steps.parse-ci.outputs.TARGET }}, version=${{ steps.parse-ci.outputs.VERSION }}, coverage=${{ steps.parse-ci.outputs.COVERAGE }}"
