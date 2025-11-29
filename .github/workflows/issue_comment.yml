@@ -36,6 +36,9 @@ jobs:
         uses: ./ci-action
         with:
           github-token: ${{ secrets.GH_API_TOKEN }}
+
+      - name: Show current branch
+        run: git branch --show-current
       
       - name: Display parsed parameters
         run: |
