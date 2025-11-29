@@ -10,6 +10,10 @@ permissions:
   pull-requests: write
   statuses: write
 
+concurrency:
+  group: ci-comment-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
 jobs:
   parse_ci_comment:
     # Ne s'exécute que si le commentaire commence par /ci et si on est dans une PR
