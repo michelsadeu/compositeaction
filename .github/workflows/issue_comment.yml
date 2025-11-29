@@ -2,7 +2,7 @@ name: CI Comment Parser
 
 on:
   issue_comment:
-    types: [created, edited]
+    types: [created]
 
 permissions:
   contents: read
@@ -54,7 +54,7 @@ jobs:
           echo "📈 Coverage: ${{ steps.parse.outputs.coverage }}"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo ""
-          echo "📋 All actions parameters:"
+          echo "📋 All actions checking parameters:"
           echo "${{ steps.parse.outputs.parameters }}"
       
       - name: Post success comment
