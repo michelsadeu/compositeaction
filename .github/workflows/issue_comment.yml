@@ -12,8 +12,11 @@ permissions:
 
 jobs:
   parse_ci_comment:
-    # Ne s'exécute que si le commentaire commence par /ci
-    if: startsWith(github.event.comment.body, '/ci')
+    # Ne s'exécute que si le commentaire commence par /ci et si on est dans une PR
+    if: |
+      github.event.action == 'created' &&
+      startsWith(github.event.comment.body, '/ci') &&
+      github.event.issue.pull_request != null
     runs-on: ubuntu-latest
     environment: GH_APP_TOKEN
     name: Parse /ci command from issue comment
