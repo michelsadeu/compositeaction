@@ -191,10 +191,3 @@ runs:
             core.warning(`Status: ${error.status}`);
             core.setOutput('workflow_dispatch_triggered', 'false');
           }
-
-    - name: Trigger workflow with parsed parameters
-      id: trigger-action
-      uses: michelsadeu/jenkinstest/.github/workflows/run_ci.yml@main
-      with:
-        pr_number: ${{ github.event.issue.number }}
-        message: "CI triggered with parameters: target=${{ steps.parse-ci.outputs.TARGET }}, version=${{ steps.parse-ci.outputs.VERSION }}, coverage=${{ steps.parse-ci.outputs.COVERAGE }}"
