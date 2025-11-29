@@ -25,24 +25,15 @@ jobs:
     name: Parse /ci command from pull request comment
     
     steps:
-      - name: Get PR branch
-        id: pr_branch
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GH_API_TOKEN }}
-          script: |
-            const pr = await github.rest.pulls.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.issue.number
-            });
-            core.setOutput('branch', pr.data.head.ref);
-      
-      - name: Checkout PR code
+      - name: Checkout main branch (for action composite)
         uses: actions/checkout@v4
         with:
-          ref: ${{ steps.pr_branch.outputs.branch }}
           fetch-depth: 0
+      
+      - name: Fetch and checkout PR branch
+        run: |
+          git fetch origin pull/${{ github.event.issue.number }}/head:pr-branch
+          git checkout pr-branch
       
       - name: Parse /ci parameters
         id: parse
