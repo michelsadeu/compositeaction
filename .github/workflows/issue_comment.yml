@@ -39,6 +39,10 @@ jobs:
               repo: context.repo.repo,
               pull_number: context.issue.number
             });
+            if (!pr) {
+              core.setFailed("No PR found for this comment.");
+              return;
+            }
             return {
               head_ref: pr.data.head.ref,
               head_repo: pr.data.head.repo.full_name
