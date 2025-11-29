@@ -22,11 +22,17 @@ outputs:
     description: 'All parameters as JSON'
     value: ${{ steps.parse-ci.outputs.parameters }}
   workflow_call_triggered:
-    description: 'Whether workflow_call was triggered successfully'
+    description: 'Whether run_ci workflow was triggered successfully'
     value: ${{ steps.trigger-workflow-call.outputs.workflow_call_triggered }}
   workflow_dispatch_triggered:
-    description: 'Whether workflow_dispatch was triggered successfully'
+    description: 'Whether run_ci workflow (second) was triggered successfully'
     value: ${{ steps.trigger-workflow-dispatch.outputs.workflow_dispatch_triggered }}
+  trigger_action_result:
+    description: 'Whether trigger-action was executed successfully'
+    value: ${{ steps.trigger-action.outputs.workflow_triggered }}
+  trigger_action_call_result:
+    description: 'Whether trigger-action-call was executed successfully'
+    value: ${{ steps.trigger-action-call.outputs.workflow_triggered }}
 
 runs:
   using: "composite"
@@ -104,7 +110,7 @@ runs:
             core.setFailed(`❌ Erreur: ${error.message}`);
           }
     
-    - name: Trigger jenkinstest workflow_call
+    - name: Trigger jenkinstest run_ci workflow
       id: trigger-workflow-call
       uses: actions/github-script@v7
       continue-on-error: true
@@ -112,29 +118,40 @@ runs:
         github-token: ${{ inputs.github-token }}
         script: |
           try {
-            core.info('📤 Déclenchement du workflow_call sur michelsadeu/jenkinstest');
+            core.info('📤 Déclenchement du workflow run_ci sur michelsadeu/jenkinstest');
+            
+            const target = '${{ steps.parse-ci.outputs.TARGET }}';
+            const version = '${{ steps.parse-ci.outputs.VERSION }}';
+            const coverage = '${{ steps.parse-ci.outputs.COVERAGE }}';
+            const message = `CI triggered with parameters: target=${target}, version=${version}, coverage=${coverage}`;
+            
+            core.info(`📊 Message: ${message}`);
+            
+            // Extraire le PR number depuis le contexte
+            const prNumber = context.issue.number;
+            core.info(`🔢 PR Number: ${prNumber}`);
             
             const dispatchResponse = await github.rest.actions.createWorkflowDispatch({
               owner: 'michelsadeu',
               repo: 'jenkinstest',
-              workflow_id: 'workflow_call.yml',
+              workflow_id: 'run_ci.yml',
               ref: 'main',
               inputs: {
-                pr_number: '${{ github.event.issue.number }}',
-                message: 'CI workflow completed successfully - triggered by /ci comment'
+                pr_number: String(prNumber),
+                message: message
               }
             });
             
-            core.info('✅ workflow_call déclenché avec succès');
+            core.info('✅ run_ci workflow déclenché avec succès');
             core.setOutput('workflow_call_triggered', 'true');
             
           } catch (error) {
-            core.warning(`⚠️ Erreur workflow_call: ${error.message}`);
+            core.warning(`⚠️ Erreur run_ci: ${error.message}`);
             core.warning(`Status: ${error.status}`);
             core.setOutput('workflow_call_triggered', 'false');
           }
-    
-    - name: Trigger jenkinstest workflow_dispatch
+
+    - name: Trigger jenkinstest run_ci workflow (second dispatch)
       id: trigger-workflow-dispatch
       uses: actions/github-script@v7
       continue-on-error: true
@@ -142,24 +159,49 @@ runs:
         github-token: ${{ inputs.github-token }}
         script: |
           try {
-            core.info('📤 Déclenchement du workflow_dispatch sur michelsadeu/jenkinstest');
+            core.info('📤 Déclenchement du workflow run_ci (second) sur michelsadeu/jenkinstest');
+            
+            const target = '${{ steps.parse-ci.outputs.TARGET }}';
+            const version = '${{ steps.parse-ci.outputs.VERSION }}';
+            const coverage = '${{ steps.parse-ci.outputs.COVERAGE }}';
+            const message = `CI triggered with parameters: target=${target}, version=${version}, coverage=${coverage}`;
+            
+            core.info(`📊 Message: ${message}`);
+            
+            // Extraire le PR number depuis le contexte
+            const prNumber = context.issue.number;
+            core.info(`🔢 PR Number: ${prNumber}`);
             
             const dispatchResponse = await github.rest.actions.createWorkflowDispatch({
               owner: 'michelsadeu',
               repo: 'jenkinstest',
-              workflow_id: 'workflow_dispatch.yml',
+              workflow_id: 'run_ci.yml',
               ref: 'main',
               inputs: {
-                pr_number: '${{ github.event.issue.number }}',
-                message: 'CI workflow completed successfully - triggered by /ci comment'
+                pr_number: String(prNumber),
+                message: message
               }
             });
             
-            core.info('✅ workflow_dispatch déclenché avec succès');
+            core.info('✅ run_ci workflow (second) déclenché avec succès');
             core.setOutput('workflow_dispatch_triggered', 'true');
             
           } catch (error) {
-            core.warning(`⚠️ Erreur workflow_dispatch: ${error.message}`);
+            core.warning(`⚠️ Erreur run_ci (second): ${error.message}`);
             core.warning(`Status: ${error.status}`);
             core.setOutput('workflow_dispatch_triggered', 'false');
           }
+
+    - name: Trigger workflow with parsed parameters
+      id: trigger-action
+      uses: michelsadeu/jenkinstest/.github/workflows/run_ci.yml@main
+      with:
+        pr_number: ${{ github.event.issue.number }}
+        message: "CI triggered with parameters: target=${{ steps.parse-ci.outputs.TARGET }}, version=${{ steps.parse-ci.outputs.VERSION }}, coverage=${{ steps.parse-ci.outputs.COVERAGE }}"
+
+    - name: Trigger workflow with parsed parameters (workflow_call)
+      id: trigger-action-call
+      uses: michelsadeu/jenkinstest/.github/workflows/run_ci.yml@main
+      with:
+        pr_number: ${{ github.event.issue.number }}
+        message: "CI triggered with parameters: target=${{ steps.parse-ci.outputs.TARGET }}, version=${{ steps.parse-ci.outputs.VERSION }}, coverage=${{ steps.parse-ci.outputs.COVERAGE }}"
