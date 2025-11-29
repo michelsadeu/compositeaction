@@ -43,14 +43,14 @@ jobs:
       - name: Display parsed parameters
         run: |
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "📊 CI CI Command Parameters Parsed"
+          echo "📊 CI Command Parameters Parsed"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo "🎯 Target:   ${{ steps.parse.outputs.target }}"
           echo "📦 Version:  ${{ steps.parse.outputs.version }}"
           echo "📈 Coverage: ${{ steps.parse.outputs.coverage }}"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo ""
-          echo "📋 All actions check parameters:"
+          echo "📋 All actions checking parameters:"
           echo "${{ steps.parse.outputs.parameters }}"
       
       - name: Post success comment
