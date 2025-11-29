@@ -19,17 +19,39 @@ jobs:
     # Ne s'exécute que si le commentaire commence par /ci et si on est dans une PR
     if: |
       github.event.action == 'created' &&
+      github.event.issue.pull_request != null &&
       startsWith(github.event.comment.body, '/ci') &&
-      github.event.issue.pull_request != null
+      github.event.comment &&
+      !contains(toJSON(github.event), '"event":"commented"')
     runs-on: ubuntu-latest
     environment: GH_APP_TOKEN
     name: Parse /ci command from issue comment
     
     steps:
+      - name: Get PR info
+        id: pr
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GH_API_TOKEN }}
+          script: |
+            const pr = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+            if (!pr) {
+              core.setFailed("No PR found for this comment.");
+              return;
+            }
+            return {
+              head_ref: pr.data.head.ref,
+              head_repo: pr.data.head.repo.full_name
+            };
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-         ref: ${{ github.event.issue.pull_request.head.ref }}
+         ref: ${{ steps.pr.outputs.head_ref }}
+         repository: ${{ steps.pr.outputs.head_repo }}
       
       - name: Parse /ci parameters
         id: parse
@@ -43,14 +65,14 @@ jobs:
       - name: Display parsed parameters
         run: |
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "📊 CI CI Command Parameters Parsed"
+          echo "📊 CI Command Parameters Parsed"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo "🎯 Target:   ${{ steps.parse.outputs.target }}"
           echo "📦 Version:  ${{ steps.parse.outputs.version }}"
           echo "📈 Coverage: ${{ steps.parse.outputs.coverage }}"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo ""
-          echo "📋 All actions check parameters:"
+          echo "📋 All actions checking parameters:"
           echo "${{ steps.parse.outputs.parameters }}"
       
       - name: Post success comment
