@@ -2,6 +2,12 @@ name: 'Parse /ci Comment'
 description: 'Parse and extract parameters from /ci comments'
 author: 'Michel-SG'
 
+inputs:
+  github-token:
+    description: 'GitHub token for API access'
+    required: false
+    default: ${{ github.token }}
+
 outputs:
   target:
     description: 'Target parameter'
@@ -23,6 +29,7 @@ runs:
       id: parse-ci
       uses: actions/github-script@v7
       with:
+        github-token: ${{ inputs.github-token }}
         script: |
           try {
             const commentBody = context.payload.comment?.body || '';
